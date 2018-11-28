@@ -43,11 +43,11 @@ Running the `add` *command* from the command line could be done using any of the
 - [x] Command name to method name mapping
 - [x] Argument long name to parameter name mapping
 - [x] Argument value to parameter data type mapping
-- [x] Optional arguments (default parameter values, e.g. `dotnet run add --first 3`)
-- [ ] Short names to parameter name mapping (e.g. `dotnet run add -f 3`)
+- [x] Optional arguments (use default parameter values, e.g. can exclude the `--second` parameter when the ``second`` parameter is defined as `int second = 0`; e.g. `dotnet run add --first 3`)
+- [ ] Short names to parameter name mapping (e.g. `dotnet run add -f 3 -s 5`)
 - [ ] Command parameter sets (multiple methods with the same name with different parameters)
 - [ ] Nested commands (sub commands, e.g. `dotnet run calc add ...`)
-- [ ] Command listing help display (e.g. `dot net run help`)
+- [ ] Command listing help display (e.g. `dotnet run help`)
 - [ ] Command help display (e.g. `dotnet run help add`)
 - [ ] Data annotation attributes for command metadata
 - [ ] Attribute routing
