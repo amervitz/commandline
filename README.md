@@ -23,7 +23,7 @@ The first command line argument is the **command** that is compared to the metho
 The command line arguments are processed from left to right.
 
 * When the next argument to process begins with `--` it is assumed to be a parameter name in the method, with the following argument being the value to assign to the parameter.
-* When the next argument to process does not begin with `--` it is assumed to be a value to assign to the next parameter in the method.
+* When the next argument to process does not begin with `--` it is assumed to be a value to assign to the next unassigned parameter in the method.
 
 For example, given an `Add` method that adds two numbers with this signature:
 
@@ -37,6 +37,8 @@ Running the `add` *command* from the command line could be done using any of the
 * ``dotnet run add --first 3 5``
 * ``dotnet run add 3 --second 5``
 * ``dotnet run add 3 5``
+* ``dotnet run add --second 5 --first 3``
+* ``dotnet run add --second 5 3``
 
 # Features / Todo
 
