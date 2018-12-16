@@ -1,62 +1,117 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Clear
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var output = Run(typeof(TopLevel), args);
-        }
-        
-        private static object Run(Type type, string[] args)
+    public static class Router
+    {        
+        public static object Run(Type type, string[] args)
         {
             var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
 
             if(args.Length > 0 && TryGetMethodToExecute(args[0], methods, out var methodToExecute))
             {
-                Console.WriteLine($"Matched on {methodToExecute.Name}");
                 var ps = methodToExecute.GetParameters();
 
                 object[] parametersToSupply = GetParameterValues(ps, args.Skip(1).ToArray());
 
-                var returnVal = methodToExecute.Invoke(null, parametersToSupply);
-                return (methodToExecute, returnVal);
-            }
-            else
-            {
-                Console.WriteLine("Methods:");
-                foreach (var m in methods)
+                if(parametersToSupply.Length == ps.Length)
                 {
-                    Console.Write("\t");
-                    Console.Write(m.Name + "(");
-                    var ps = m.GetParameters();
-
-                    for (int i = 0; i < ps.Length; i++)
-                    {
-                        Console.Write(ps[i].ParameterType.Name);
-                        Console.Write(" ");
-                        Console.Write(ps[i].Name);
-
-                        if (i < (ps.Length - 1))
-                        {
-                            Console.Write(", ");
-                        }
-                    }
-                    Console.WriteLine(")");
-
-                    var da = m.GetCustomAttribute<DisplayAttribute>();
-                    if (da != null)
-                    {
-                        Console.WriteLine($"\t\t{da.GetShortName()} - {da.GetName()} - {da.GetDescription()} - {da.GetPrompt()}");
-                    }
+                    var returnVal = methodToExecute.Invoke(null, parametersToSupply);
+                    return (methodToExecute, returnVal);
                 }
             }
 
+            ShowMethods(methods);
+
             return null;
+        }
+
+        public static object Run(string @namespace, string[] args){
+
+            var command = args.Length > 0 ? args[0] : null;
+
+            var types = Assembly.GetEntryAssembly().GetTypes().Where(t => t.Namespace.StartsWith(@namespace, StringComparison.InvariantCultureIgnoreCase));
+
+            if(command == null)
+            {
+                ShowCommands(@namespace, types);
+                return null;
+            }
+
+            if(TryGetClassToExecute(@namespace, command, types, out var classToExecute))
+            {
+                return Run(classToExecute, args.Skip(1).ToArray());
+            }
+
+            return Run(@namespace + "." + command, args.Skip(1).ToArray());
+        }
+
+        private static void ShowCommands(string @namespace, IEnumerable<Type> types)
+        {
+            var typesWithoutNamespace = from t in types
+                                        let ns = Regex.Replace(t.FullName, Regex.Escape(@namespace + "."), "", RegexOptions.IgnoreCase)
+                                        select ns;
+
+            var commands = from c in typesWithoutNamespace
+                           let segments = c.Split('.')
+                           select segments[0];
+
+            var uniqueCommands = commands.Distinct();
+
+            foreach (var command in uniqueCommands)
+            {
+                Console.WriteLine(command);
+            }
+        }
+
+        private static void ShowClasses(IEnumerable<Type> types)
+        {                           
+            foreach(var type in types)
+            {
+                Console.WriteLine(type.Name);
+            }
+        }
+
+        private static bool TryGetClassToExecute(string @namespace, string @class, IEnumerable<Type> classes, out Type classToExecute)
+        {
+            classToExecute = classes.FirstOrDefault(c => 
+                c.Namespace.Equals(@namespace, StringComparison.InvariantCultureIgnoreCase) && 
+                c.Name.Equals(@class, StringComparison.InvariantCultureIgnoreCase)
+            );
+
+            return classToExecute != null;
+        }
+
+        private static void ShowMethods(MethodInfo[] methods)
+        {
+            foreach (var m in methods)
+            {
+                Console.Write(m.Name + " (");
+                var ps = m.GetParameters();
+
+                for (int i = 0; i < ps.Length; i++)
+                {
+                    Console.Write(ps[i].ParameterType.Name);
+                    Console.Write(" ");
+                    Console.Write(ps[i].Name);
+
+                    if (i < (ps.Length - 1))
+                    {
+                        Console.Write(", ");
+                    }
+                }
+                Console.WriteLine(")");
+
+                //var da = m.GetCustomAttribute<DisplayAttribute>();
+                //if (da != null)
+                //{
+                //    Console.WriteLine($"\t\t{da.GetShortName()} - {da.GetName()} - {da.GetDescription()} - {da.GetPrompt()}");
+                //}
+            }
         }
 
         private static object[] GetParameterValues(ParameterInfo[] ps, string[] args)
@@ -112,7 +167,7 @@ namespace Clear
                 }
             }
 
-            return paramsToUse.ToArray();
+            return paramsToUse;
         }
 
         private static object GetObjectParameter(ParameterInfo parm, string value)

@@ -2,55 +2,118 @@ Clear - **C**ommand **L**in**e** **A**rgument **R**outer
 
 # About
 
-This project is an experimental attempt at making a class library that makes it trivial to have command line arguments get routed/mapped to a method to execute.
+This project is an early in-progress effort to implement a .NET Standard class library that makes it trivial to write .NET console applications without having to implement argument parsing logic, by providing an API to automatically parse and route command line arguments to methods and parameters to be executed.
 
 # Status
 
-The code is very early, raw, messy, under active development, and not ready for use.
+The code is under active development and not ready for production use.
 
 # Design
 
-The argument routing logic is contained in the `\src\Clear` project which is also the main entry point for a console application. Eventually the argument routing logic will be in a project that is only a class library.
+The argument routing logic is in the `\src\Clear` class library. This project will eventually become a NuGet package. To use it now, clone this repository, and add a reference to this project to your console application.
 
-The project contains the following files:
+A sample console application that uses the routing logic to execute commands is in the `\src\App` project.
 
-* The `TopLevel.cs` class contains methods that represent multiple commands in the application that can be run from the command line.
-* The `Program.cs` class contains the entry point for taking the command line arguments and using reflection to find and execute the appropriate method in the `TopLevel` class with its parameters.
+The `Clear` library contains the following files:
 
-# Command and Argument Routing
-The first command line argument is the **command** that is compared to the method names in the `TopLevel` class to find the method to execute. The remaining parameters are the **arguments** to supply to each parameter in the found method.
+* `\src\Clear\Router.cs` contains multiple `Run` methods to find and execute commands using reflection.
 
-The command line arguments are processed from left to right.
+The `App` sample console application contins the following files:
 
-* When the next argument to process begins with `--` it is assumed to be a parameter name in the method, with the following argument being the value to assign to the parameter.
-* When the next argument to process does not begin with `--` it is assumed to be a value to assign to the next unassigned parameter in the method.
+* `\src\App\Program.cs` contains the entry point for taking the command line arguments and using the `\src\Clear` class library to execute a command that is a static method contained in a specific class or to be found within a namespace.
 
-For example, given an `Add` method that adds two numbers with this signature:
+# Class Routing (Commands)
+Given an `App` console application, containing a `Calculator` class with an `Add` method that adds two numbers:
 
 ```c#
-public static int Add(int first, int second)
+public static class Calculator
+{
+    public static int Add(int first, int second)
+    {
+        return first + second;
+    }
+}
 ```
 
-Running the `add` *command* from the command line could be done using any of these command line argument combinations:
+The `Add` method, and any other methods within the `Calculator` class, are made available within the `App` console application using the following code:
 
-* ``dotnet run add --first 3 --second 5``
-* ``dotnet run add --first 3 5``
-* ``dotnet run add 3 --second 5``
-* ``dotnet run add 3 5``
-* ``dotnet run add --second 5 --first 3``
-* ``dotnet run add --second 5 3``
+```c#
+class Program
+{
+    static void Main(string[] args)
+    {
+        var output = Clear.Router.Run(typeof(Calculator), args);
+    }
+}
+```
 
+Running the `add` *command* from the command line is then possible using any of these command line argument combinations:
+
+* ``app.exe add --first 3 --second 5``
+* ``app.exe add --first 3 5``
+* ``app.exe add 3 --second 5``
+* ``app.exe add 3 5``
+
+# Namespace Routing (Sub Commands)
+
+Given an `App` console application, containing an `App.Commands` namespace with multiple classes within it:
+
+```c#
+namespace App.Commands
+{
+    public static class Calculator
+    {
+        public static void Add (int first, int second)
+    }
+}
+
+namespace App.Commands.Blog
+{
+    public static class Comment
+    {
+        public static void Add (string name)
+        public static void Delete (string name)
+    }
+    public static class Post
+    {
+        public static void Add (string name)
+        public static void Delete (string name)
+    }
+}
+````
+These classes and their methods within the `App.Commands` namespace are made available to be executed using the following code:
+
+```c#
+class Program
+{
+    static void Main(string[] args)
+    {
+        var output = Clear.Router.Run("App.Commands", args);
+    }
+}
+````
+
+To run the `calculator` command:
+
+* ``app.exe calculator add --first 1 --second 2``
+
+To run the `blog` command and its `comment` and `post` sub commands:
+
+* ``app.exe blog comment add --name "My comment"``
+* ``app.exe blog comment delete --name "My Comment"``
+* ``app.exe blog post add --name "My post"``
+* ``app.exe blog post delete --name "My post"`` 
 # Features / Todo
 
 - [x] Command name to method name mapping
 - [x] Argument long name to parameter name mapping
 - [x] Argument value to parameter data type mapping
-- [x] Optional arguments (use default parameter values, e.g. can exclude the `--second` parameter when the ``second`` parameter is defined as `int second = 0`; e.g. `dotnet run add --first 3`)
-- [ ] Short names to parameter name mapping (e.g. `dotnet run add -f 3 -s 5`)
+- [x] Optional arguments (use default parameter values, e.g. can exclude the `--second` parameter when the ``second`` parameter is defined as `int second = 0`; e.g. `app.exe add --first 3`)
+- [x] Nested commands (sub commands, e.g. `app.exe calc add ...`)
+- [ ] Short names to parameter name mapping (e.g. `app.exe add -f 3 -s 5`)
 - [ ] Command parameter sets (multiple methods with the same name with different parameters)
-- [ ] Nested commands (sub commands, e.g. `dotnet run calc add ...`)
-- [ ] Command listing help display (e.g. `dotnet run help`)
-- [ ] Command help display (e.g. `dotnet run help add`)
+- [ ] Command listing help display (e.g. `app.exe help`)
+- [ ] Command help display (e.g. `app.exe help add`)
 - [ ] Data annotation attributes for command metadata
 - [ ] Attribute routing
 - [ ] Unit tests

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Clear
+namespace App.Commands
 {
-    public static class TopLevel
+    [DisplayName("calc")]
+    public static class Calculator
     {
         /// <summary>
         /// Adds two numbers together
@@ -12,7 +14,7 @@ namespace Clear
         /// <param name="second">The second number</param>
         [Display(
             ShortName = "a",
-            Name = "Add",
+            Name = "add",
             Description = "Adds two numbers together",
             Prompt = "add --first 1 --second 2"
         )]
