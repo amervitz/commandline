@@ -10,22 +10,29 @@ namespace Clear
     {        
         public static object Run(Type type, string[] args)
         {
-            var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
+            var methodFinder = new SingleMethodFinder(type);
 
-            if(args.Length > 0 && TryGetMethodToExecute(args[0], methods, out var methodToExecute))
+            var command = args.Length > 0 ? args[0] : null;
+
+            if (command != null && methodFinder.TryFindMethodToExecute(command, out var methodToExecute))
             {
-                var ps = methodToExecute.GetParameters();
+                var methodParameters = methodToExecute.GetParameters();
 
-                object[] parametersToSupply = GetParameterValues(ps, args.Skip(1).ToArray());
+                var commandArguments = args.Skip(1).ToArray();
 
-                if(parametersToSupply.Length == ps.Length)
+                var (success, parametersToSupply) = TryGetParameterValues(methodParameters, commandArguments);
+
+                if(success && parametersToSupply.Length == methodParameters.Length)
                 {
                     var returnVal = methodToExecute.Invoke(null, parametersToSupply);
-                    return (methodToExecute, returnVal);
+                    return returnVal;
                 }
             }
 
-            ShowMethods(methods);
+            var helpFormatter = new HelpFormatter();
+            var helpText = helpFormatter.GetCommands(type);
+
+            Console.Write(helpText);
 
             return null;
         }
@@ -86,72 +93,39 @@ namespace Clear
             return classToExecute != null;
         }
 
-        private static void ShowMethods(MethodInfo[] methods)
+        private static (bool, object[]) TryGetParameterValues(ParameterInfo[] parameterTypes, string[] args)
         {
-            foreach (var m in methods)
-            {
-                Console.Write(m.Name + " (");
-                var ps = m.GetParameters();
-
-                for (int i = 0; i < ps.Length; i++)
-                {
-                    Console.Write(ps[i].ParameterType.Name);
-                    Console.Write(" ");
-                    Console.Write(ps[i].Name);
-
-                    if (i < (ps.Length - 1))
-                    {
-                        Console.Write(", ");
-                    }
-                }
-                Console.WriteLine(")");
-
-                //var da = m.GetCustomAttribute<DisplayAttribute>();
-                //if (da != null)
-                //{
-                //    Console.WriteLine($"\t\t{da.GetShortName()} - {da.GetName()} - {da.GetDescription()} - {da.GetPrompt()}");
-                //}
-            }
-        }
-
-        private static object[] GetParameterValues(ParameterInfo[] ps, string[] args)
-        {
-            var paramsToUse = new object[ps.Length];
-
-            if (args.Length == 0)
-            {
-                // loop through the arguments and assign default values
-                for (int i = 0; i < ps.Length; i++)
-                {
-                    if (ps[i].HasDefaultValue)
-                    {
-                        paramsToUse[i] = ps[i].DefaultValue;
-                    }
-                }
-            }
-
-            for (int i = 0; i < args.Length; i++)
+            var parameterValues = new List<(bool?, object)>(parameterTypes.Length);
+            parameterValues.AddRange(Enumerable.Repeat<(bool?, object)>((default, null), parameterTypes.Length));
+            
+            var parameterConverter = new ParameterTypeConverter();
+            for (int i = 0; i < args.Length && parameterValues.FindIndex(pv => pv.Item1 == null) >= 0; i++)
             {
                 // get the parameter value
-                var param = args[i];
+                var arg = args[i];
 
                 // check if it's a named argument
-                var namedArgument = ps.FirstOrDefault(p => string.Equals($"--{p.Name}", param, StringComparison.InvariantCultureIgnoreCase));
+                var namedArgument = parameterTypes.FirstOrDefault(p => string.Equals($"--{p.Name}", arg, StringComparison.InvariantCultureIgnoreCase));
 
                 // if a named argument, add the next value as the parameter value
                 if (namedArgument != null)
                 {
-                    var paramIndex = Array.IndexOf(ps, namedArgument);
+                    var paramIndex = Array.IndexOf(parameterTypes, namedArgument);
                     if(args.Length >= i + 2)
                     {
-                        paramsToUse[paramIndex] = GetObjectParameter(namedArgument, args[i+1]);
+                        // only convert and assign the value if it hasn't already been assigned, e.g. by an unnamed argument
+                        if (parameterValues[paramIndex].Item1 == null)
+                        {
+                            parameterValues[paramIndex] = parameterConverter.TryChangeValue(args[i + 1], namedArgument.ParameterType);
+                        }
+
                         i += 1;
                     }
                     else // the last parameter and it has a default value
                     {
                         if (namedArgument.HasDefaultValue)
                         {
-                            paramsToUse[i] = namedArgument.DefaultValue;
+                            parameterValues[i] = (true, namedArgument.DefaultValue);
                         }
                     }
                 }
@@ -159,41 +133,26 @@ namespace Clear
                 else
                 {
                     // find the first null position
-                    var emptyIndex = Array.IndexOf(paramsToUse, null);
+                    var emptyIndex = parameterValues.FindIndex(pv => pv.Item1 == null);
 
                     // get the named argument for the position
-                    var unnamedArgument = ps[emptyIndex];
-                    paramsToUse[emptyIndex] = GetObjectParameter(unnamedArgument, param);
+                    var unnamedArgument = parameterTypes[emptyIndex];
+                    parameterValues[emptyIndex] = parameterConverter.TryChangeValue(arg, unnamedArgument.ParameterType);
                 }
             }
 
-            return paramsToUse;
-        }
-
-        private static object GetObjectParameter(ParameterInfo parm, string value)
-        {
-            var ut = Nullable.GetUnderlyingType(parm.ParameterType);
-            if (ut != null)
+            // assign any default values to unassigned parameters
+            for (int i = 0; i < parameterTypes.Length; i++)
             {
-                if (string.Equals(value, "null", StringComparison.InvariantCultureIgnoreCase))
+                if (parameterValues[i].Item1 == null && parameterTypes[i].HasDefaultValue)
                 {
-                    return null;
-                }
-                else
-                {
-                    return Convert.ChangeType(value, ut);
+                    parameterValues[i] = (true, parameterTypes[i].DefaultValue);
                 }
             }
-            else
-            {
-                return Convert.ChangeType(value, parm.ParameterType);
-            }
-        }
 
-        private static bool TryGetMethodToExecute(string command, MethodInfo[] methods, out MethodInfo methodToExecute)
-        {
-            methodToExecute = methods.Where(m => string.Equals(m.Name, command, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-            return methodToExecute != null;
+            var allParsedSuccessfully = parameterValues.All(p => p.Item1 == true);
+
+            return (allParsedSuccessfully, parameterValues.Select(i => i.Item2).ToArray());
         }
     }
 }
