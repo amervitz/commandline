@@ -10,7 +10,7 @@ namespace Clear
     {        
         public static object Run(Type type, string[] args)
         {
-            var methodFinder = new FirstMethodFinder(type);
+            var methodFinder = new OverloadMethodFinder(type);
 
             var command = args.Length > 0 ? args[0] : null;
 

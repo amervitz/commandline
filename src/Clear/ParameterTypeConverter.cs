@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+using System.Globalization;
 
 namespace Clear
 {
@@ -26,16 +24,14 @@ namespace Clear
             {
                 return (Guid.TryParse(value, out Guid result), result);
             }
-            else
+
+            try
             {
-                try
-                {
-                    return (true, Convert.ChangeType(value, type));
-                }
-                catch
-                {
-                    return (false, null);
-                }
+                return (true, Convert.ChangeType(value, type, CultureInfo.InvariantCulture));
+            }
+            catch
+            {
+                return (false, null);
             }
         }
     }

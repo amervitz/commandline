@@ -1,5 +1,6 @@
 ﻿using App.Commands;
 using Clear;
+using System;
 
 namespace App
 {
@@ -8,10 +9,11 @@ namespace App
         static void Main(string[] args)
         {
             // run commands in a class
-            var output = Router.Run(typeof(Calculator), args);
+            // var output = Router.Run(typeof(Calculator), args);
 
             // run commands and subcommands in a namespace
-            var output2 = Router.Run("App.Commands", args);
+            var output = Router.Run("App.Commands", args);
+            Console.Write(output);
         }
     }
 }

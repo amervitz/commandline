@@ -110,8 +110,8 @@ To run the `blog` command and its `comment` and `post` sub commands:
 - [x] Argument value to parameter data type mapping
 - [x] Optional arguments (use default parameter values, e.g. can exclude the `--second` parameter when the ``second`` parameter is defined as `int second = 0`; e.g. `app.exe add --first 3`)
 - [x] Nested commands (sub commands, e.g. `app.exe calc add ...`)
+- [x] Command parameter sets (multiple methods with the same name with different parameters)
 - [ ] Short names to parameter name mapping (e.g. `app.exe add -f 3 -s 5`)
-- [ ] Command parameter sets (multiple methods with the same name with different parameters)
 - [ ] Command listing help display (e.g. `app.exe help`)
 - [ ] Command help display (e.g. `app.exe help add`)
 - [ ] Data annotation attributes for command metadata
