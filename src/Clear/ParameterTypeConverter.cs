@@ -15,24 +15,33 @@ namespace Clear
                 return (true, null);
             }
 
-            return TryChangeNonNullableType(value, underlyingType ?? type);
-        }
-
-        private (bool, object) TryChangeNonNullableType(string value, Type type)
-        {
-            if (type == typeof(Guid))
-            {
-                return (Guid.TryParse(value, out Guid result), result);
-            }
-
             try
             {
-                return (true, Convert.ChangeType(value, type, CultureInfo.InvariantCulture));
+                return ChangeNonNullableType(value, underlyingType ?? type);
             }
             catch
             {
                 return (false, null);
             }
+        }
+
+        private (bool, object) ChangeNonNullableType(string value, Type type)
+        {
+            // change types that implement IConvertible
+            if (type.GetInterface(nameof(IConvertible)) != null)
+            {
+                return (true, Convert.ChangeType(value, type, CultureInfo.InvariantCulture));
+            }
+
+            // change types that implement a constructor with a single string parameter
+            var constructor = type.GetConstructor(new[] { typeof(string) });
+            if (constructor != null)
+            {
+                return (true, constructor.Invoke(new[] { value }));
+            }
+
+            // changing the type is not supported
+            return (false, null);
         }
     }
 }

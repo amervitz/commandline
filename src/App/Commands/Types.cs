@@ -17,5 +17,10 @@ namespace App.Commands
         {
             Console.WriteLine($"Guid: {val}");
         }
+
+        public static void Uri(Uri val)
+        {
+            Console.WriteLine($"Url: {val}");
+        }
     }
 }
