@@ -8,6 +8,11 @@ namespace App.Commands
 {
     public static class Types
     {
+        public static void Void()
+        {
+            Console.Write("Void");
+        }
+
         public static void String(string val)
         {
             Console.WriteLine($"String: {val}");

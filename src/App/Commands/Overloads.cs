@@ -23,6 +23,11 @@ namespace App.Commands
             return $"Combine(float first, float second, float third): {first}{second}{third}";
         }
 
+        public static string Combine(string first, string second, string third, string fourth)
+        {
+            return $"Combine(string first, string second, string third, string fourth): {first}{second}{third}{fourth}";
+        }
+
         public static void Tester()
         {
             var x = Combine(1, 2, 3);
