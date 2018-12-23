@@ -42,7 +42,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var output = Clear.Router.Run(typeof(Calculator), args);
+        var output = Clear.Router.Invoke(typeof(Calculator), args);
     }
 }
 ```
@@ -88,7 +88,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var output = Clear.Router.Run("App.Commands", args);
+        var output = Clear.Router.Invoke("App.Commands", args);
     }
 }
 ````

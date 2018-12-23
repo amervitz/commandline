@@ -1,6 +1,5 @@
 ﻿using App.Commands;
 using Clear;
-using System;
 
 namespace App
 {
@@ -9,21 +8,21 @@ namespace App
         static void Main(string[] args)
         {
             // run commands in a class
-            // var output = Router.Run(typeof(Calculator), args);
+            // var output = Router.Invoke(typeof(Calculator), args);
 
             // run commands and subcommands in a namespace
-            // var output = Router.Run("App.Commands", args);
+            // var output = Router.Invoke("App.Commands", args);
             // Console.Write(output);
 
             // run a specific method with 4 parameters and a return value
-            // var output = Router.Run<string, string, string, string, string>(Overloads.Combine, args);
+            // var output = Router.Invoke<string, string, string, string, string>(Overloads.Combine, args);
             // Console.Write(output);
 
             // run a specific method with no parameters and no return value
-            // Router.Run(Types.Void, args);
+            // Router.Invoke(Types.Void, args);
 
             // run a method with 2 parameters and no return value
-            Router.Run<int?, int>(Calculator.Add, args);
+            Router.Invoke<int?, int>(Calculator.Add, args);
         }
     }
 }

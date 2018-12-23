@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -33,7 +32,7 @@ namespace Clear
 
                 var (success, parametersToSupply) = parameterMatcher.TryGetParameterValues(methodParameters, args);
 
-                if(success)
+                if (success)
                 {
                     return (method, parametersToSupply);
                 }
