@@ -18,10 +18,10 @@ namespace App.Commands
             Description = "Adds two numbers together",
             Prompt = "add --first 1 --second 2"
         )]
-        public static void Add(int? first, int second = 0)
+        public static int Add(int? first, int second = 0)
         {
             var result = first.GetValueOrDefault() + second;
-            Console.WriteLine(result);
+            return result;
         }
 
         public static int Subtract(int first, int second)

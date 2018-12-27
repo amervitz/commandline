@@ -32,11 +32,13 @@ namespace Clear
             return null;
         }
 
-        public static object Invoke(string @namespace, string[] args)
+        public static object Invoke(string @namespace, string[] args, Assembly assembly = null)
         {
             var command = args.Length > 0 ? args[0] : null;
 
-            var types = Assembly.GetEntryAssembly().GetTypes().Where(t => t.Namespace.StartsWith(@namespace, StringComparison.InvariantCultureIgnoreCase));
+            assembly = assembly ?? Assembly.GetEntryAssembly();
+
+            var types = assembly.GetTypes().Where(t => t.Namespace.StartsWith(@namespace, StringComparison.InvariantCultureIgnoreCase));
 
             if (command == null)
             {
@@ -53,7 +55,7 @@ namespace Clear
                 return Invoke(classToExecute, args.Skip(1).ToArray());
             }
 
-            return Invoke(@namespace + "." + command, args.Skip(1).ToArray());
+            return Invoke(@namespace + "." + command, args.Skip(1).ToArray(), assembly);
         }
 
         private static bool TryGetClassToExecute(string @namespace, string @class, IEnumerable<Type> classes, out Type classToExecute)
