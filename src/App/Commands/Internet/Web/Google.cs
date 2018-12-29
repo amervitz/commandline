@@ -4,9 +4,9 @@ namespace App.Commands.Internet.Web
 {
     public static class Google
     {
-        public static void Search(string query)
+        public static string Search(string query)
         {
-            Console.WriteLine("https://www.google.com/?q=" + query);
+            return $"https://www.google.com/search?q={query}";
         }
     }
 }

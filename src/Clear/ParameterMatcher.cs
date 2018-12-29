@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Clear.Arguments;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,61 +8,52 @@ namespace Clear
 {
     public class ParameterMatcher
     {
+        private readonly ArgumentParser argumentParser = new ArgumentParser();
+        private readonly ParameterTypeConverter parameterTypeConverter = new ParameterTypeConverter();
+
         public (bool, object[]) TryGetParameterValues(ParameterInfo[] parameterTypes, string[] args)
         {
             var parameterValues = new List<(bool?, object)>(parameterTypes.Length);
             parameterValues.AddRange(Enumerable.Repeat<(bool?, object)>((default, null), parameterTypes.Length));
 
-            var argsQueue = new Queue<string>(args);
+            var argsCollection = argumentParser.Parse(args);
 
-            var parameterConverter = new ParameterTypeConverter();
-            for (int i = 0; i < args.Length && parameterValues.FindIndex(pv => pv.Item1 == null) >= 0; i++)
+            foreach (var arg in argsCollection)
             {
-                // get the parameter value
-                var currentArg = argsQueue.Dequeue();
-
-                // check if it's a named argument
-                var namedArgument = parameterTypes.FirstOrDefault(p => string.Equals($"--{p.Name}", currentArg, StringComparison.InvariantCultureIgnoreCase));
-
-                // if a named argument, add the next value as the parameter value
-                if (namedArgument != null)
+                if (arg is NamedArgument namedArgument)
                 {
-                    var paramIndex = Array.IndexOf(parameterTypes, namedArgument);
-                    if (args.Length >= i + 2)
-                    {
-                        // only convert and assign the value if it hasn't already been assigned, e.g. by an unnamed argument
-                        if (parameterValues[paramIndex].Item1 == null)
-                        {
-                            currentArg = argsQueue.Dequeue();
-                            parameterValues[paramIndex] = parameterConverter.TryChangeValue(currentArg, namedArgument.ParameterType);
-                        }
+                    var parameter = parameterTypes.FirstOrDefault(p => string.Equals(p.Name, namedArgument.Name, StringComparison.InvariantCultureIgnoreCase));
 
-                        i += 1;
-                    }
-                    else // the last parameter and it has a default value
+                    if (parameter == null)
                     {
-                        if (namedArgument.HasDefaultValue)
-                        {
-                            parameterValues[i] = (true, namedArgument.DefaultValue);
-                        }
+                        return (false, parameterValues.Select(param => param.Item2).ToArray());
                     }
+
+                    var paramIndex = Array.IndexOf(parameterTypes, parameter);
+
+                    // only assign the parameter value if it hasn't already been assigned by another argument
+                    if (parameterValues[paramIndex].Item1 != null)
+                    {
+                        return (false, parameterValues.Select(param => param.Item2).ToArray());
+                    }
+
+                    parameterValues[paramIndex] = parameterTypeConverter.TryChangeValue(namedArgument.Value, parameter.ParameterType);
                 }
-                // try to use the current argument as the next parameter value 
-                else
+                else if (arg is AnonymousArgument anonymousArgument)
                 {
-                    // find the first null position
+                    // find the first parameter without a value
                     var emptyIndex = parameterValues.FindIndex(pv => pv.Item1 == null);
 
-                    // get the named argument for the position
-                    var unnamedArgument = parameterTypes[emptyIndex];
-                    parameterValues[emptyIndex] = parameterConverter.TryChangeValue(currentArg, unnamedArgument.ParameterType);
-                }
-            }
+                    // only assign the parameter value if an unassigned parameter is found
+                    if (emptyIndex == -1)
+                    {
+                        return (false, parameterValues.Select(param => param.Item2).ToArray());
+                    }
 
-            // if there are still arguments left, more were passed in than the method allows, not successful match
-            if (argsQueue.Count > 0)
-            {
-                return (false, parameterValues.Select(i => i.Item2).ToArray());
+                    // get the parameter
+                    var anonymousParameter = parameterTypes[emptyIndex];
+                    parameterValues[emptyIndex] = parameterTypeConverter.TryChangeValue(anonymousArgument.Value, anonymousParameter.ParameterType);
+                }
             }
 
             // assign any default values to unassigned parameters
