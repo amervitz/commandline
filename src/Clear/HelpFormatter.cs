@@ -40,12 +40,6 @@ namespace Clear
             foreach (var method in methods)
             {
                 output.AppendLine(GetArguments(method));
-
-                //var da = m.GetCustomAttribute<DisplayAttribute>();
-                //if (da != null)
-                //{
-                //    Console.WriteLine($"\t\t{da.GetShortName()} - {da.GetName()} - {da.GetDescription()} - {da.GetPrompt()}");
-                //}
             }
 
             return output.ToString();
@@ -59,9 +53,10 @@ namespace Clear
 
             for (int i = 0; i < ps.Length; i++)
             {
-                output.Append(ps[i].ParameterType.Name);
+                var parameter = new Parameter(ps[i]);
+                output.Append(parameter.ParameterInfo.ParameterType.Name);
                 output.Append(" ");
-                output.Append(ps[i].Name);
+                output.Append(parameter.Name);
 
                 if (i < (ps.Length - 1))
                 {
