@@ -53,6 +53,16 @@ namespace Clear.Tests
         }
 
         [Fact]
+        public void DuplicateNamedArgumentShouldBeKept()
+        {
+            var args = new string[] { "--name", "value1", "--name", "value2" };
+            var parser = new ArgumentParser();
+            var parsedArguments = parser.Parse(args, false);
+
+            Assert.True(parsedArguments.Count == 2);
+        }
+
+        [Fact]
         public void ShouldContainTwoNamedArguments()
         {
             var args = new string[] { "--name1", "value1", "--name2", "value2" };

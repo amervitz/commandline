@@ -13,5 +13,15 @@ namespace Clear.Tests.Commands
         {
             return $"{param1}{param2}";
         }
+
+        public static string ParameterShortNameOverride([Display(ShortName = "p")]int param1, [Display(ShortName = "q")]int param2)
+        {
+            return $"{param1}{param2}";
+        }
+
+        public static string ParameterShortAndLongNameOverride([Display(ShortName = "p", Name = "par1")]int param1, [Display(ShortName = "q", Name = "par2")]int param2)
+        {
+            return $"{param1}{param2}";
+        }
     }
 }

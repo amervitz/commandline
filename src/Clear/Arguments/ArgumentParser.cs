@@ -8,11 +8,11 @@ namespace Clear.Arguments
 {
     public class ArgumentParser
     {
-        public ArgumentCollection Parse(string[] args)
+        public ArgumentCollection Parse(string[] args, bool removeDuplicates = true)
         {
             var argsQueue = new Queue<string>(args);
             var parsedArguments = new Dictionary<string, bool>();
-            var parameters = new ArgumentCollection();
+            var arguments = new ArgumentCollection();
 
             while(argsQueue.Count > 0)
             {
@@ -22,11 +22,7 @@ namespace Clear.Arguments
                 // test if it's a named parameter
                 if (IsNamedArgument(currentArg))
                 {
-                    var parameter = new NamedArgument
-                    {
-                        Name = currentArg.Remove(0, 2),
-                        OriginalName = currentArg,
-                    };
+                    var argument = new NamedArgument(currentArg);
 
                     // check if the next argument is a value
                     if (argsQueue.Count > 0 && !IsNamedArgument(argsQueue.Peek()))
@@ -34,14 +30,17 @@ namespace Clear.Arguments
                         var nextArg = argsQueue.Dequeue();
                         var unescaped = Unescape(nextArg);
 
-                        parameter.Value = unescaped;
+                        argument.Value = unescaped;
                     }
 
-                    // only keep the parameter if it hasn't already been seen
-                    if (!parsedArguments.ContainsKey(parameter.Name))
+                    if (!removeDuplicates)
                     {
-                        parameters.Add(parameter);
-                        parsedArguments.Add(parameter.Name, true);
+                        arguments.Add(argument);
+                    }
+                    else if(!parsedArguments.ContainsKey(argument.Name))
+                    {
+                        arguments.Add(argument);
+                        parsedArguments.Add(argument.Name, true);
                     }
                 }
                 else
@@ -51,16 +50,29 @@ namespace Clear.Arguments
                         Value = Unescape(currentArg)
                     };
 
-                    parameters.Add(parameter);
+                    arguments.Add(parameter);
                 }
             }
 
-            return parameters;
+            return arguments;
         }
 
         public static bool IsNamedArgument(string arg)
         {
-            return arg.StartsWith("--") && arg.Length > 2 && arg[2] != '-';
+            var isLongName = arg.StartsWith("--") && arg.Length > 2 && arg[2] != '-';
+
+            if (isLongName)
+            {
+                return true;
+            }
+
+            var isShortName = arg.StartsWith("-") && arg.Length > 1 && arg[1] != '-';
+            if (isShortName)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static string Unescape(string arg)

@@ -22,7 +22,9 @@ namespace Clear
             {
                 if (arg is NamedArgument namedArgument)
                 {
-                    var parameter = parameterTypes.FirstOrDefault(pi => string.Equals(new Parameter(pi).Name, namedArgument.Name, StringComparison.InvariantCultureIgnoreCase));
+                    var parameter = parameterTypes.FirstOrDefault(pi =>
+                        string.Equals(new Parameter(pi).Name, namedArgument.Name, StringComparison.InvariantCultureIgnoreCase) ||
+                        string.Equals(new Parameter(pi).ShortName, namedArgument.Name, StringComparison.InvariantCultureIgnoreCase));
 
                     if (parameter == null)
                     {

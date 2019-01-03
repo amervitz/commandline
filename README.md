@@ -1,5 +1,3 @@
-Clear - **C**ommand **L**in**e** **A**rguments **R**outer
-
 # About
 
 This project is an in-progress effort to implement a .NET Standard class library that makes it trivial to write .NET console applications without having to implement argument parsing logic. It provides an API to automatically parse command line arguments and route them to a method to be executed.
@@ -104,7 +102,7 @@ To run the `blog` command and its `comment` and `post` sub commands:
 * ``app.exe blog post add --name "My post"``
 * ``app.exe blog post delete --name "My post"`` 
 
-# Features / Todo
+# Go-live features roadmap
 
 - [x] Command name to method name mapping
 - [x] Argument long name to parameter name mapping
@@ -113,10 +111,9 @@ To run the `blog` command and its `comment` and `post` sub commands:
 - [x] Nested commands (sub commands, e.g. `app.exe calc add ...`)
 - [x] Command parameter sets (multiple methods with the same name with different parameters)
 - [x] Parameter name override using `DisplayAttribute`
-- [ ] Short names to parameter name mapping (e.g. `app.exe add -f 3 -s 5`)
+- [x] Parameter short name override using `DisplayAttribute` (e.g. `app.exe add -f 3 -s 5`)
+- [ ] Command name override using `DisplayNameAttribute` 
 - [ ] Command listing help display (e.g. `app.exe help`)
 - [ ] Command help display (e.g. `app.exe help add`)
-- [ ] Data annotation attributes for command metadata
-- [ ] Attribute routing
-- [ ] Unit tests
+- [ ] Comprehensive unit tests
 - [ ] NuGet package
