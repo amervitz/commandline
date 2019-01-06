@@ -119,28 +119,48 @@ namespace Clear.Tests
         }
 
         [Fact]
-        public void Escape()
+        public void EscapeLongArgument()
         {
             Assert.Equal("value", ArgumentParser.Escape("value"));
             Assert.Equal("-value", ArgumentParser.Escape("-value"));
             Assert.Equal("----value", ArgumentParser.Escape("--value"));
-            Assert.Equal("-----value", ArgumentParser.Escape("---value"));
-            Assert.Equal("--------value", ArgumentParser.Escape("----value"));
+            Assert.Equal("---value", ArgumentParser.Escape("---value"));
+            Assert.Equal("----value", ArgumentParser.Escape("----value"));
         }
 
         [Fact]
-        public void Unescape()
+        public void UnescapeLongArgument()
         {
             Assert.Equal("value", ArgumentParser.Unescape("value"));
             Assert.Equal("-value", ArgumentParser.Unescape("-value"));
             Assert.Equal("--value", ArgumentParser.Unescape("--value"));
             Assert.Equal("---value", ArgumentParser.Unescape("---value"));
             Assert.Equal("--value", ArgumentParser.Unescape("----value"));
-            Assert.Equal("---value", ArgumentParser.Unescape("-----value"));
-            Assert.Equal("----value", ArgumentParser.Unescape("------value"));
-            Assert.Equal("-----value", ArgumentParser.Unescape("-------value"));
-            Assert.Equal("----value", ArgumentParser.Unescape("--------value"));
-            Assert.Equal("-----value", ArgumentParser.Unescape("---------value"));
+            Assert.Equal("-----value", ArgumentParser.Unescape("-----value"));
+            Assert.Equal("------value", ArgumentParser.Unescape("------value"));
+            Assert.Equal("-------value", ArgumentParser.Unescape("-------value"));
+            Assert.Equal("--------value", ArgumentParser.Unescape("--------value"));
+            Assert.Equal("---------value", ArgumentParser.Unescape("---------value"));
+        }
+
+        [Fact]
+        public void EscapeShortArgument()
+        {
+            Assert.Equal("v", ArgumentParser.Escape("v"));
+            Assert.Equal("--v", ArgumentParser.Escape("-v"));
+            Assert.Equal("--v", ArgumentParser.Escape("--v"));
+            Assert.Equal("---v", ArgumentParser.Escape("---v"));
+            Assert.Equal("----v", ArgumentParser.Escape("----v"));
+        }
+
+        [Fact]
+        public void UnescapeShortArgument()
+        {
+            Assert.Equal("v", ArgumentParser.Unescape("v"));
+            Assert.Equal("-v", ArgumentParser.Unescape("-v"));
+            Assert.Equal("-v", ArgumentParser.Unescape("--v"));
+            Assert.Equal("---v", ArgumentParser.Unescape("---v"));
+            Assert.Equal("----v", ArgumentParser.Unescape("----v"));
         }
 
         [Fact]
@@ -156,54 +176,84 @@ namespace Clear.Tests
         public void AllEmptyArgumentsStringArray()
         {
             var args = new string[] { "--name1", "--name2" };
+            var shortArgs = new string[] { "-a", "-b" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal(args, collection.ToStringArray());
+            Assert.Equal(shortArgs, shortCollection.ToStringArray());
         }
 
         [Fact]
         public void AllEmptyArgumentsString()
         {
             var args = new string[] { "--name1", "--name2" };
+            var shortArgs = new string[] { "-a", "-b" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal("--name1 --name2", collection.ToString());
+            Assert.Equal("-a -b", shortCollection.ToString());
         }
 
         [Fact]
         public void NamedArgumentsWithValuesStringArray()
         {
             var args = new string[] { "--name1", "value1", "--name2", "value2" };
+            var shortArgs = new string[] { "-a", "value1", "-b", "value2" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal(args, collection.ToStringArray());
+            Assert.Equal(shortArgs, shortCollection.ToStringArray());
         }
 
         [Fact]
         public void NamedArgumentsWithValuesString()
         {
             var args = new string[] { "--name1", "value1", "--name2", "value2" };
+            var shortArgs = new string[] { "-a", "value1", "-b", "value2" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal("--name1 value1 --name2 value2", collection.ToString());
+            Assert.Equal("-a value1 -b value2", shortCollection.ToString());
         }
 
         [Fact]
         public void NamedArgumentsWithEscapedValuesStringArray()
         {
             var args = new string[] { "--name1", "----value1", "--name2", "-----value2" };
+            var shortArgs = new string[] { "-a", "--y", "-b", "--z" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal(args, collection.ToStringArray());
+            Assert.Equal(shortArgs, shortCollection.ToStringArray());
         }
 
         [Fact]
         public void NamedArgumentsWithEscapedValuesString()
         {
             var args = new string[] { "--name1", "----value1", "--name2", "-----value2" };
+            var shortArgs = new string[] { "-a", "--y", "-b", "--z" };
+
             var parser = new ArgumentParser();
             var collection = parser.Parse(args);
+            var shortCollection = parser.Parse(shortArgs);
+
             Assert.Equal("--name1 ----value1 --name2 -----value2", collection.ToString());
+            Assert.Equal("-a --y -b --z", shortCollection.ToString());
         }
     }
 }

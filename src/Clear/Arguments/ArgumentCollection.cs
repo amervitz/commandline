@@ -18,7 +18,15 @@ namespace Clear.Arguments
                         returnVal.Add(ArgumentParser.Escape(anon.Value));
                         break;
                     case NamedArgument named:
-                        returnVal.Add($"--{named.Name}");
+
+                        if (named.Format == NamedArgumentFormat.Long)
+                        {
+                            returnVal.Add($"--{named.Name}");
+                        }
+                        else
+                        {
+                            returnVal.Add($"-{named.Name}");
+                        }
 
                         if (named.Value != null)
                         {
@@ -44,7 +52,15 @@ namespace Clear.Arguments
                         returnVal.Append($"{ArgumentParser.Escape(anon.Value)} ");
                         break;
                     case NamedArgument named:
-                        returnVal.Append($"--{named.Name} ");
+
+                        if (named.Format == NamedArgumentFormat.Long)
+                        {
+                            returnVal.Append($"--{named.Name} ");
+                        }
+                        else
+                        {
+                            returnVal.Append($"-{named.Name} ");
+                        }
 
                         if (named.Value != null)
                         {

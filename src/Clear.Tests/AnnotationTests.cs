@@ -14,7 +14,7 @@ namespace Clear.Tests
         public void OverriddenParameterNamesAreUsed()
         {
             var args = new string[] { "--p1", "1", "--p2", "2" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterNameOverride, args);
             Assert.Equal("12", output);
         }
 
@@ -22,7 +22,7 @@ namespace Clear.Tests
         public void OriginalParameterNamesWhenOverridenAreNotUsed()
         {
             var args = new string[] { "--param1", "1", "--param2", "2" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterNameOverride, args);
             Assert.Null(output);
         }
 
@@ -30,7 +30,7 @@ namespace Clear.Tests
         public void OverriddenParameterShortNamesAreUsed()
         {
             var args = new string[] { "-p", "1", "-q", "2" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterShortNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterShortNameOverride, args);
             Assert.Equal("12", output);
         }
 
@@ -38,7 +38,7 @@ namespace Clear.Tests
         public void ShortNameAndNameParameterOverridesWork()
         {
             var args = new string[] { "-p", "1", "--par2", "2" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterShortAndLongNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterShortAndLongNameOverride, args);
             Assert.Equal("12", output);
         }
 
@@ -46,7 +46,7 @@ namespace Clear.Tests
         public void InvalidShortNameOverrideFails()
         {
             var args = new string[] { "-par1", "1", "--par2", "2" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterShortAndLongNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterShortAndLongNameOverride, args);
             Assert.Null(output);
         }
 
@@ -54,7 +54,7 @@ namespace Clear.Tests
         public void SameParameterMultipleOverridesAreNotUsed()
         {
             var args = new string[] { "-p", "1", "--par1", "2", "--par2", "3" };
-            var output = Router.Invoke<int, int, string>(Annotations.ParameterShortAndLongNameOverride, args);
+            var output = Router.Invoke<string, string, string>(Annotations.ParameterShortAndLongNameOverride, args);
             Assert.Null(output);
         }
     }

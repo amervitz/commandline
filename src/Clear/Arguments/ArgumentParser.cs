@@ -59,14 +59,14 @@ namespace Clear.Arguments
 
         public static bool IsNamedArgument(string arg)
         {
-            var isLongName = arg.StartsWith("--") && arg.Length > 2 && arg[2] != '-';
+            var isLongName = arg.StartsWith("--") && arg.Length > 3 && arg[2] != '-';
 
             if (isLongName)
             {
                 return true;
             }
 
-            var isShortName = arg.StartsWith("-") && arg.Length > 1 && arg[1] != '-';
+            var isShortName = arg.StartsWith("-") && arg.Length == 2 && arg[1] != '-';
             if (isShortName)
             {
                 return true;
@@ -82,40 +82,9 @@ namespace Clear.Arguments
                 return null;
             }
 
-            var startChars = arg.ToCharArray();
+            var argArray = arg.ToCharArray();
             var numFound = 0;
-            foreach (var schar in startChars)
-            {
-                if (schar == '-')
-                {
-                    numFound++;
-                } else
-                {
-                    break;
-                }
-            }
-
-            var substituationsToPerform = numFound / 4;
-            if (substituationsToPerform > 0)
-            {
-                return arg.Remove(0, substituationsToPerform * 2);
-            }
-            else
-            {
-                return arg;
-            }
-        }
-
-        public static string Escape(string arg)
-        {
-            if (arg == null)
-            {
-                return null;
-            }
-
-            var startChars = arg.ToCharArray();
-            var numFound = 0;
-            foreach (var schar in startChars)
+            foreach (var schar in argArray)
             {
                 if (schar == '-')
                 {
@@ -127,15 +96,62 @@ namespace Clear.Arguments
                 }
             }
 
-            var substituationsToPerform = numFound / 2;
-            if (substituationsToPerform > 0)
+            var remainingChars = arg.Substring(numFound);
+
+            // unescape what would normally be a shortname (single dash and single character)
+            if (numFound == 2 && remainingChars.Length == 1)
             {
-                return new string('-', substituationsToPerform * 2) + arg;
+                return $"-{remainingChars}";
             }
-            else
+
+            // unescape what would normally be a longname (two dashes and atleast 1 character)
+            if (numFound == 4 && remainingChars.Length > 1)
             {
-                return arg;
+                return $"--{remainingChars}";
             }
+
+            // no escaping necessary
+            return arg;
+
+        }
+
+        public static string Escape(string arg)
+        {
+            if (arg == null)
+            {
+                return null;
+            }
+
+            var argArray = arg.ToCharArray();
+            var numFound = 0;
+            foreach (var schar in argArray)
+            {
+                if (schar == '-')
+                {
+                    numFound++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            var remainingChars = arg.Substring(numFound);
+
+            // escape what would normally be a shortname (single dash and single character)
+            if(numFound == 1 && remainingChars.Length == 1)
+            {
+                return $"-{arg}";
+            }
+
+            // escape what would normally be a longname (two dashes and atleast 1 character)
+            if(numFound == 2 && remainingChars.Length > 1)
+            {
+                return $"--{arg}";
+            }
+
+            // no escaping necessary
+            return arg;
         }
     }
 }
