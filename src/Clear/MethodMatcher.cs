@@ -4,11 +4,11 @@ using System.Reflection;
 
 namespace Clear
 {
-    public class OverloadMethodFinder
+    public class MethodMatcher
     {
         private readonly Type _type;
 
-        public OverloadMethodFinder(Type type)
+        public MethodMatcher(Type type)
         {
             _type = type;
         }
@@ -17,7 +17,8 @@ namespace Clear
         {
             var methods = _type.GetMethods(BindingFlags.Static | BindingFlags.Public);
 
-            var methodsToExecute = methods.Where(m => string.Equals(m.Name, command, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var methodsToExecute = methods.Where(m =>
+                string.Equals(new Method(m).Name, command, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             if (methodsToExecute?.Count == 0)
             {

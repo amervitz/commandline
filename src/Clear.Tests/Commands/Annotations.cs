@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Clear.Tests.Commands
 {
@@ -22,6 +17,12 @@ namespace Clear.Tests.Commands
         public static string ParameterShortAndLongNameOverride([Display(ShortName = "p", Name = "par1")]string param1, [Display(ShortName = "q", Name = "par2")]string param2)
         {
             return $"{param1}{param2}";
+        }
+
+        [Display(Name = "OverriddenMethodName")]
+        public static string MethodNameOverridden(string param1)
+        {
+            return $"{param1}";
         }
     }
 }

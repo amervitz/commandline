@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Clear.Tests
 {
-    public class AnnotationTests
+    public class AnnotationParameterTests
     {
         [Fact]
         public void OverriddenParameterNamesAreUsed()

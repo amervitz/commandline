@@ -14,7 +14,7 @@ namespace App.Commands
         }
 
         [Display(
-            Name = "add",
+            Name = "add2",
             Description = "Adds two numbers together"
         )]
         public static int AddWithAttributes

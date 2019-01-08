@@ -13,7 +13,7 @@ namespace Clear
 
             if (command != null)
             {
-                var methodFinder = new OverloadMethodFinder(type);
+                var methodFinder = new MethodMatcher(type);
 
                 var (method, parameters) = methodFinder.TryFindMethodToInvoke(command, args.Skip(1).ToArray());
 
