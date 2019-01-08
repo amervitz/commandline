@@ -21,7 +21,7 @@ namespace Clear.Tests
         [Fact]
         public void OriginalMethodNameWhenOverriddenIsNotUsed()
         {
-            var args = new string[] { "MethodNameOverridedn", "--param1", "1" };
+            var args = new string[] { nameof(Annotations.MethodNameOverridden), "--param1", "1" };
             var output = Router.Invoke(typeof(Annotations), args);
             Assert.Null(output);
         }
