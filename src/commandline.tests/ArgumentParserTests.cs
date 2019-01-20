@@ -1,8 +1,8 @@
-﻿using Clear.Arguments;
+﻿using amervitz.commandline.Arguments;
 using System.Linq;
 using Xunit;
 
-namespace Clear.Tests
+namespace amervitz.commandline.Tests
 {
     public class ArgumentParserTests
     {

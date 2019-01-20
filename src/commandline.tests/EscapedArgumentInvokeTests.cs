@@ -1,7 +1,7 @@
-using Clear.Tests.Commands;
+using amervitz.commandline.Tests.Commands;
 using Xunit;
 
-namespace Clear.Tests
+namespace amervitz.commandline.Tests
 {
     public class EscapedArgumentInvokeTests
     {

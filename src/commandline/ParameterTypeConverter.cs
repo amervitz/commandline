@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Clear
+namespace amervitz.commandline
 {
     public class ParameterTypeConverter
     {

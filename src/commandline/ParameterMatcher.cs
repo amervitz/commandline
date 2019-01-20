@@ -1,10 +1,10 @@
-﻿using Clear.Arguments;
+﻿using amervitz.commandline.Arguments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Clear
+namespace amervitz.commandline
 {
     public class ParameterMatcher
     {

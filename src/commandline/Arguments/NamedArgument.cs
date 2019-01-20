@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Clear.Arguments
+namespace amervitz.commandline.Arguments
 {
     public enum NamedArgumentFormat
     {

@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\App\App.csproj" />
-    <ProjectReference Include="..\Clear\Clear.csproj" />
+    <ProjectReference Include="..\commandline\commandline.csproj" />
+    <ProjectReference Include="..\samples\app\app.csproj" />
   </ItemGroup>
 
 </Project>

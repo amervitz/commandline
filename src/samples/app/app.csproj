@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Clear\Clear.csproj" />
+    <ProjectReference Include="..\..\commandline\commandline.csproj" />
   </ItemGroup>
 
 </Project>

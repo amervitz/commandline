@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace Clear
+namespace amervitz.commandline
 {
     public class Method
     {

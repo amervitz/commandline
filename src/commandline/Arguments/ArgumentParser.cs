@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Clear.Arguments
+namespace amervitz.commandline.Arguments
 {
     public class ArgumentParser
     {

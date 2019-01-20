@@ -1,4 +1,4 @@
-﻿using Clear.Tests.Commands;
+﻿using amervitz.commandline.Tests.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Clear.Tests
+namespace amervitz.commandline.Tests
 {
     public class AnnotationMethodTests
     {

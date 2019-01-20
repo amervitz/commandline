@@ -2,7 +2,7 @@ using App;
 using App.Commands;
 using Xunit;
 
-namespace Clear.Tests
+namespace amervitz.commandline.Tests
 {
     public class InvokeTests
     {

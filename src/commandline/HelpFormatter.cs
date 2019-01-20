@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Clear
+namespace amervitz.commandline
 {
     public class HelpFormatter
     {

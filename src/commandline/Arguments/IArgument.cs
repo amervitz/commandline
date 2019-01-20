@@ -1,4 +1,4 @@
-﻿namespace Clear.Arguments
+﻿namespace amervitz.commandline.Arguments
 {
     public interface IArgument
     {

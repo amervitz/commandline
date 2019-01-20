@@ -1,5 +1,5 @@
 ﻿using App.Commands;
-using Clear;
+using amervitz.commandline;
 using System;
 
 namespace App

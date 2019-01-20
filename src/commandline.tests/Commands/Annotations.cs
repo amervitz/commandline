@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Clear.Tests.Commands
+namespace amervitz.commandline.Tests.Commands
 {
     public static class Annotations
     {
