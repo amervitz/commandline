@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace amervitz.commandline
 {
@@ -19,15 +20,25 @@ namespace amervitz.commandline
 
                 if (method != null)
                 {
-                    var returnValue = method.Invoke(null, parameters);
-                    return returnValue;
+                    var invokeResult = method.Invoke(null, parameters);
+
+                    if(invokeResult is Task task)
+                    {
+                        task.Wait();
+                        var taskResult = task.GetType().GetProperty("Result").GetValue(task);
+                        return taskResult;
+                    }
+                    else
+                    {
+                        return invokeResult;
+                    }
                 }
             }
 
             var helpFormatter = new HelpFormatter();
             var helpText = helpFormatter.GetCommands(type);
 
-            Console.Write(helpText);
+            Console.Error.Write(helpText);
 
             return null;
         }
@@ -92,6 +103,12 @@ namespace amervitz.commandline
             Invoke<object>(methodInfo, args);
         }
 
+        public static async Task InvokeAsync<T>(Action<T> method, string[] args)
+        {
+            var methodInfo = method.GetMethodInfo();
+            Invoke<object>(methodInfo, args);
+        }
+
         public static TResult Invoke<T1, T2, TResult>(Func<T1, T2, TResult> method, string[] args)
         {
             var methodInfo = method.GetMethodInfo();
@@ -149,7 +166,20 @@ namespace amervitz.commandline
 
             if (success)
             {
-                return (TResult)methodInfo.Invoke(null, parameters);
+                //return (TResult)methodInfo.Invoke(null, parameters);
+
+                var invokeResult = methodInfo.Invoke(null, parameters);
+
+                if (invokeResult is Task task)
+                {
+                    task.Wait();
+                    var taskResult = task.GetType().GetProperty("Result").GetValue(task);
+                    return (TResult)taskResult;
+                }
+                else
+                {
+                    return (TResult)invokeResult;
+                }
             }
             else
             {
